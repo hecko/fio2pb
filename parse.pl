@@ -7,7 +7,7 @@ use DBD::mysql;
 use Time::Local;
 
 my $dbh;
-my $prog = "slsp_parser";
+my $prog = "fio2pb";
 
 binmode(STDOUT, ":utf8");
 
@@ -16,13 +16,13 @@ print "Starting...\n";
 sub db_reconnect {
 	print "(re)connecting DB\n";
 	$dbh->disconnect if $dbh;
-	my $dsn = "DBI:mysql:slsp:localhost";
+	my $dsn = "DBI:mysql:fio2pb:localhost";
 	$dbh = DBI->connect($dsn,'slsp','slsp')
 			or die "$prog FAIL: Unable to connect: $dbh->errstr";
 	$dbh->ping or die "$prog FAIL: Unable to verify open database: $dbh->errstr";
 }
 
-#db_reconnect();
+db_reconnect();
 
 my @files = <data/*>;
 
@@ -37,8 +37,6 @@ my @files = <data/*>;
 #  6 VS;
 #  7 spec Symbol;
 #  U<9e>ívate¾ská identifikácia;Typ;Vykonal;Názov protiúètu;Názov banky;
-
-
 
 foreach my $file (@files) {
 	open(FILE, "< $file");
@@ -59,9 +57,9 @@ foreach my $file (@files) {
 			"            Od: $d[8]\n".
 			"           Typ: $d[9]\n".
 			"          Info: KS:$d[5] VS:$d[6] SS:$d[7] $d[8] $d[10]\n\n";
-		#my $sth = $dbh->prepare("INSERT INTO `transactions` (`date`,`amount`, `info`) VALUES (?,?,?)")
-		#	or print "$prog FAIL: mysql prepare failed: $dbh->errstr\n";
-		#$sth->execute($timestamp,$d[7],$d[4]."/".$d[5]." ".$d[6]." ".$d[12]." ".$d[16]." ".$d[18]." ".$d[22]) or print "$prog FAIL: mysql exec failed: $dbh->errstr\n";
+		my $sth = $dbh->prepare("INSERT INTO `transactions` (`timestamp`,`amount`,`info`) VALUES (?,?,?)")
+			or print "$prog FAIL: mysql prepare failed: $dbh->errstr\n";
+		$sth->execute($timestamp,$d[2],$d[5]." ".$d[6]." ".$d[7]." ".$d[8]." ".$d[10]) or print "$prog FAIL: mysql exec failed: $dbh->errstr\n";
 	}
 }
 
