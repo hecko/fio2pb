@@ -36,7 +36,11 @@ my @files = <data/*>;
 #  5 KS;
 #  6 VS;
 #  7 spec Symbol;
-#  U<9e>ívate¾ská identifikácia;Typ;Vykonal;Názov protiúètu;Názov banky;
+#  8 U<9e>ívate¾ská identifikácia
+#  9 Typ
+# 10 Vykonal
+# 11 Názov protiúètu
+# 12 Názov banky
 
 foreach my $file (@files) {
 	open(FILE, "< $file");
@@ -57,9 +61,9 @@ foreach my $file (@files) {
 			"            Od: $d[8]\n".
 			"           Typ: $d[9]\n".
 			"          Info: KS:$d[5] VS:$d[6] SS:$d[7] $d[8] $d[10]\n\n";
-		my $sth = $dbh->prepare("INSERT INTO `transactions` (`timestamp`,`amount`,`info`) VALUES (?,?,?)")
+		my $sth = $dbh->prepare("INSERT INTO `transactions` (`timestamp`,`amount`,`vs`,`info`) VALUES (?,?,?,?)")
 			or print "$prog FAIL: mysql prepare failed: $dbh->errstr\n";
-		$sth->execute($timestamp,$d[2],$d[5]." ".$d[6]." ".$d[7]." ".$d[8]." ".$d[10]) or print "$prog FAIL: mysql exec failed: $dbh->errstr\n";
+		$sth->execute($timestamp,$d[2],$d[6],"Date:".$d[1]." KS:".$d[5]." SS:".$d[7]." ".$d[8]." ".$d[10]) or print "$prog FAIL: mysql exec failed: $dbh->errstr\n";
 	}
 }
 
